@@ -1,5 +1,11 @@
-import gradio as gr
+import streamlit as st
 from groq import Groq
+
+# Set up clean dark-themed canvas properties
+st.set_page_config(page_title="Portfolio AI Assistant", page_icon="💻", layout="centered")
+
+st.title("💻 Portfolio AI Assistant")
+st.write("Ask me anything about the tools and websites I've built!")
 
 # --- HARDCODED FREE KEY SETUP ---
 GROQ_API_KEY = "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"
@@ -14,44 +20,42 @@ Always present my work proudly and chronologically to show my growth as a develo
 4. Custom Python AI Chatbot: My latest masterpiece! A fully custom portfolio AI assistant programmed using Python and Visual Studio Code (this exact app you are talking to right now!).
 """
 
-def chat_function(message, history):
-    client = Groq(api_key=GROQ_API_KEY)
-    
-    # Formulate messages array with the hidden system instructions
-    messages = [{"role": "system", "content": SYSTEM_INSTRUCTION}]
-    for user_msg, ai_msg in history:
-        messages.append({"role": "user", "content": user_msg})
-        messages.append({"role": "assistant", "content": ai_msg})
-    messages.append({"role": "user", "content": message})
-    
-    # Request a sub-second response stream from Groq
-    response_stream = client.chat.completions.create(
-        model="llama-3.3-70b-specdec", 
-        messages=messages,
-        stream=True
-    )
-    
-    partial_text = ""
-    for chunk in response_stream:
-        if chunk.choices and chunk.choices[0].delta and chunk.choices[0].delta.content:
-            partial_text += chunk.choices[0].delta.content
-            yield partial_text
+# Initialize persistent memory state loops natively
+if "messages" not in st.session_state:
+    st.session_state.messages = []
 
-# Custom theme colors to perfectly match your dark portfolio layout
-custom_theme = gr.themes.Default(
-    primary_hue="blue",
-    neutral_hue="slate"
-).set(
-    body_background_fill="#1a1a1a",
-    body_text_color="#f8fafc",
-    block_background_fill="#2b2b2b"
-)
+# Render past dialogue items on screen reload
+for message in st.session_state.messages:
+    with st.chat_message(message["role"]):
+        st.markdown(message["content"])
 
-with gr.Blocks(theme=custom_theme, title="Portfolio AI Assistant") as demo:
-    gr.Markdown("### 💻 Portfolio AI Assistant\nAsk me anything about the websites I've built!")
-    gr.ChatInterface(
-        fn=chat_function,
-        type="messages"
-    )
+# Process new prompt entries
+if prompt := st.chat_input("Ask me about projects..."):
+    with st.chat_message("user"):
+        st.markdown(prompt)
+    st.session_state.messages.append({"role": "user", "content": prompt})
 
-demo.queue().launch(share=False)
+    with st.chat_message("assistant"):
+        message_placeholder = st.empty()
+        full_response = ""
+        
+        # Build payload with structural memories
+        client = Groq(api_key=GROQ_API_KEY)
+        api_messages = [{"role": "system", "content": SYSTEM_INSTRUCTION}]
+        for msg in st.session_state.messages:
+            api_messages.append({"role": msg["role"], "content": msg["content"]})
+            
+        # Fire sub-second streaming inference loops
+        completion = client.chat.completions.create(
+            model="llama-3.3-70b-specdec",
+            messages=api_messages,
+            stream=True
+        )
+        
+        for chunk in completion:
+            if chunk.choices and chunk.choices[0].delta.content:
+                full_response += chunk.choices[0].delta.content
+                message_placeholder.markdown(full_response + "▌")
+        message_placeholder.markdown(full_response)
+        
+    st.session_state.messages.append({"role": "assistant", "content": full_response})

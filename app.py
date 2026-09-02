@@ -45,13 +45,13 @@ if prompt := st.chat_input("Ask me about projects..."):
         for msg in st.session_state.messages:
             api_messages.append({"role": msg["role"], "content": msg["content"]})
             
-                # ✅ Fixed to target a highly stable, active model name!
+        # Fire sub-second streaming inference loops
         completion = client.chat.completions.create(
-            model="llama-3.1-70b-versatile", 
+            model="llama-3.3-70b-specdec",
             messages=api_messages,
             stream=True
         )
-
+        
         for chunk in completion:
             if chunk.choices and chunk.choices[0].delta.content:
                 full_response += chunk.choices[0].delta.content

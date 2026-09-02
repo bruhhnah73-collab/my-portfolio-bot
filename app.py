@@ -45,12 +45,12 @@ if prompt := st.chat_input("Ask me about projects..."):
         for msg in st.session_state.messages:
             api_messages.append({"role": msg["role"], "content": msg["content"]})
             
-                    # ✅ Change it to this exactly:
         completion = client.chat.completions.create(
             model="llama-3.3-70b", # <-- ACTIVE PRODUCTION ENGINE ID!
             messages=api_messages,
             stream=True
         )
+
 
 
         for chunk in completion:

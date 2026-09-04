@@ -16,7 +16,11 @@ st.write("Ask me anything about the tools and websites I've built!")
 # -----------------------------
 # Get API key securely
 # -----------------------------
-GROQ_API_KEY = st.secrets["GROQ_API_KEY"]
+try:
+    GROQ_API_KEY = st.secrets["GROQ_API_KEY"]
+except KeyError:
+    st.error("GROQ_API_KEY is not configured in Streamlit Secrets.")
+    st.stop()
 
 # -----------------------------
 # AI instructions
@@ -86,7 +90,7 @@ if prompt:
         "content": prompt
     })
 
-    # Generate AI response
+    # Generate assistant response
     with st.chat_message("assistant"):
 
         message_placeholder = st.empty()
@@ -96,7 +100,7 @@ if prompt:
             # Create Groq client
             client = Groq(api_key=GROQ_API_KEY)
 
-            # Build messages for the AI
+            # Build conversation
             api_messages = [
                 {
                     "role": "system",
@@ -104,51 +108,46 @@ if prompt:
                 }
             ]
 
-            # Add conversation history
             for message in st.session_state.messages:
                 api_messages.append({
                     "role": message["role"],
                     "content": message["content"]
                 })
 
-            # Send request to Groq
+            # Ask Groq
             completion = client.chat.completions.create(
-                model="llama-3.3-70b-versatile",
+                model="openai/gpt-oss-20b",
                 messages=api_messages,
-                temperature=0.7,
-                max_tokens=1024,
-                stream=True
+                temperature=0.6,
+                max_completion_tokens=1024,
+                stream=True,
+                include_reasoning=False
             )
 
-            # Stream response
+            # Stream the response
             for chunk in completion:
 
-                if (
-                    chunk.choices
-                    and chunk.choices[0].delta
-                    and chunk.choices[0].delta.content
-                ):
-                    content = chunk.choices[0].delta.content
+                if not chunk.choices:
+                    continue
 
+                content = chunk.choices[0].delta.content
+
+                if content:
                     full_response += content
 
                     message_placeholder.markdown(
                         full_response + "▌"
                     )
 
-            # Remove typing cursor
+            # Final response
             message_placeholder.markdown(full_response)
 
-            # Save assistant response
+            # Save response
             st.session_state.messages.append({
                 "role": "assistant",
                 "content": full_response
             })
 
         except Exception as e:
-
-            st.error(
-                "Something went wrong while connecting to the AI."
-            )
-
+            st.error("Something went wrong while connecting to the AI.")
             st.code(str(e))

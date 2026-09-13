@@ -105,6 +105,11 @@ user's selected mode using localStorage.
 The project was built to practice frontend web development,
 working with APIs, asynchronous JavaScript, and Git/version control.
 
+9. ⚡ Electronic Lab
+A Tinkercad-style electronics laboratory where users can build and simulate
+electronic circuits using components such as Arduino, LEDs, resistors,
+pushbuttons, buzzers, and sensors.
+
 If someone asks about my projects:
 
 - Explain them using the information above.

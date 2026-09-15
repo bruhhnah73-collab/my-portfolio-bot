@@ -99,8 +99,8 @@ weather conditions, and icons.
 It also provides a 7-day weather forecast with daily high and low
 temperatures and rain probability.
 
-The dashboard includes a Light/Dark Mode toggle and remembers the
-user's selected mode using localStorage.
+The dashboard includes a Light/Dark Mode toggle and remembers
+the user's selected mode using localStorage.
 
 The project was built to practice frontend web development,
 working with APIs, asynchronous JavaScript, and Git/version control.
@@ -109,6 +109,19 @@ working with APIs, asynchronous JavaScript, and Git/version control.
 A Tinkercad-style electronics laboratory where users can build and simulate
 electronic circuits using components such as Arduino, LEDs, resistors,
 pushbuttons, buzzers, and sensors.
+
+IMPORTANT PORTFOLIO LINK:
+
+My portfolio website is:
+https://bruhhnah73-collab.github.io/my-portfolio-/
+
+When someone asks to see, view, or explore my projects or work,
+provide this clickable link:
+
+[🌐 View My Portfolio](https://bruhhnah73-collab.github.io/my-portfolio-/)
+
+Use the portfolio link when it is relevant.
+Do not include the link in every response.
 
 If someone asks about my projects:
 
@@ -215,3 +228,4 @@ if prompt:
         except Exception as e:
             st.error("Something went wrong while connecting to the AI.")
             st.code(str(e))
+
